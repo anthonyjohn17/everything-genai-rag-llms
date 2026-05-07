@@ -1,0 +1,262 @@
+# Architecture (technical, tied to this repo)
+
+## Table of contents (Explain OpenClaw)
+
+- [Home (README)](../README.md)
+- Plain English
+  - [What is OpenClaw?](../01-plain-english/what-is-clawdbot.md)
+  - [Glossary](../01-plain-english/glossary.md)
+  - [CLI commands](../01-plain-english/cli-commands.md)
+- Technical
+  - [Architecture](./architecture.md)
+  - [Repo map](./repo-map.md)
+- Privacy + safety
+  - [Threat model](../04-privacy-safety/threat-model.md)
+  - [Hardening checklist](../04-privacy-safety/hardening-checklist.md)
+- Deployment
+  - [Standalone Mac mini](../03-deploy/standalone-mac-mini.md)
+  - [Isolated VPS](../03-deploy/isolated-vps.md)
+  - [Cloudflare Moltworker](../03-deploy/cloudflare-moltworker.md)
+- Optimizations
+  - [Cost + token optimization](../06-optimizations/cost-token-optimization.md)
+- Reference
+  - [Commands + troubleshooting](../99-reference/commands-and-troubleshooting.md)
+
+---
+
+This page explains how the OpenClaw codebase is organized and how a message becomes a response.
+
+Sources verified against:
+- `../docs/index.md` (high-level)
+- `../docs/gateway/index.md` (Gateway runbook)
+- `../docs/gateway/security/index.md`
+- `../src/gateway/server.impl.ts` (Gateway startup + config validation + auth bootstrap)
+- `../src/gateway/server-runtime-config.ts` (bind/auth runtime enforcement)
+- `../src/gateway/startup-auth.ts` (startup token generation / persistence behavior)
+- `../src/auto-reply/reply/agent-runner.ts` (agent turn execution)
+- `../src/auto-reply/reply/reply-delivery.ts` (block reply pipeline)
+- `../src/gateway/chat-sanitize.ts` and `../src/gateway/server-methods/chat.ts` (input sanitization)
+- `../src/daemon/` (daemon subsystem)
+
+---
+
+## High-level data flow
+
+```
+Messaging apps (WhatsApp/Telegram/Discord/iMessage/...)  
+        │
+        ▼
+Gateway (single always-on process)
+  - channel ingress/egress
+  - input sanitization (strip metadata, control chars)
+  - routing + policy checks
+  - sessions (disk)
+  - agent turns → block reply pipeline
+  - tool calls
+        │
+        ▼
+AI provider(s) (Anthropic/OpenAI/etc.) OR local model endpoint
+        │
+        ▼
+Back to the channel
+```
+
+OpenClaw is **Gateway-centric**. Most things you do (status, logs, pairing, sending, agent runs) talk to the Gateway via its WebSocket RPC.
+
+---
+
+## The Gateway is the control plane
+
+The Gateway:
+- binds a single port (default `18789`) and multiplexes:
+  - WebSocket control plane
+  - Control UI / dashboard (v2: modular views, command palette, mobile tabs, richer chat tools)
+  - OpenAI-compatible HTTP endpoints: `/v1/chat/completions`, `/v1/responses`, `/v1/models` (v2026.3.24+), `/v1/embeddings` (v2026.3.24+), `/tools/invoke`. The `/v1/models` and `/v1/embeddings` additions enable broader RAG client compatibility and explicit model overrides through the HTTP surface.
+  - container health probes (`/health`, `/healthz`, `/ready`, `/readyz`) for Docker/Kubernetes
+- owns channel connections (WhatsApp Web session, Telegram bot long-poll, etc.)
+- owns local state (config, credentials, transcripts)
+
+It also enforces startup auth safety:
+- if auth mode resolves to token but no token exists, startup generates one (`ensureGatewayStartupAuth`) and persists it when running without ephemeral overrides.
+- non-loopback binds are refused without shared-secret auth (except explicit `trusted-proxy` mode with trusted proxy IPs configured).
+
+### Config validation as a safety feature
+In `src/gateway/server.impl.ts`, the Gateway:
+- reads config snapshot
+- migrates legacy config entries when possible
+- refuses to start on invalid schema
+
+This is intentional: unknown keys and malformed values are treated as unsafe.
+
+Docs: https://docs.openclaw.ai/gateway/configuration
+
+### Input sanitization
+
+`src/gateway/chat-sanitize.ts` strips platform envelope metadata (WhatsApp headers, message IDs, control characters) from user messages before processing. `sanitizeChatSendMessageInput()` (`src/gateway/server-methods/chat.ts:268`) rejects null bytes and strips disallowed control characters, allowing only tabs, newlines, carriage returns, and printable characters through.
+
+### Config merge-patch
+
+`src/config/merge-patch.ts` implements ID-based array merging for config overlays. When patching arrays of objects that have `id` fields, it merges by matching IDs rather than positional replacement, preventing accidental overwrite of security-critical config entries.
+
+---
+
+## Key modules in this repo (where to look)
+
+### CLI
+- Entry script: `src/entry.ts` → loads CLI main.
+- Command wiring: `src/cli/`.
+- Gateway CLI docs: `docs/cli/gateway.md`.
+
+### Gateway
+- Gateway start + core runtime: `src/gateway/` (entry in `src/gateway/server.impl.ts`).
+- WebSocket runtime + methods live under `src/gateway/server-*` modules.
+
+### Channels
+- Channel implementations live under `extensions/` as workspace packages (e.g. `extensions/telegram`, `extensions/discord`, `extensions/slack`, `extensions/signal`, `extensions/imessage`, `extensions/whatsapp`, `extensions/feishu`). A few legacy adapters (`src/line/`, `src/whatsapp/`) remain in `src/`.
+- Shared channel logic + routing helpers live in `src/channels/`.
+
+### Auto-reply / agent turns
+- The “reply pipeline” is under `src/auto-reply/`.
+- `src/auto-reply/reply/agent-runner.ts` is a central orchestrator for running a turn, managing session updates, typing signals, tool output emission rules, follow-ups, etc.
+
+### Config schema
+- Types are exported from `src/config/types.ts` (split into many `types.*.ts` files).
+- The docs describe strict schema validation and how the UI uses it.
+
+### Daemon
+- `src/daemon/` (~57 files as of Mar 2026). Cross-platform service management: systemd (Linux), launchd (macOS), schtasks (Windows). Handles Gateway lifecycle as a background service.
+
+### Docs
+- `src/docs/`. Documentation system helpers and utilities.
+
+### Memory
+- `src/memory/`. Persistent knowledge layer with SQLite + sqlite-vec storage, markdown chunking, embedding providers, hybrid search. (Detailed in [`resource-usage.md` Section F](../06-optimizations/resource-usage.md#f-how-openclaw-memory-works-architecture-deep-dive).)
+
+### Plugins
+- `src/plugins/`. Plugin loading via jiti, hook registration, marketplace integration. Since v2026.3.12, LLM providers (Ollama, vLLM, SGLang) are also provider plugins with provider-owned onboarding and discovery.
+- **Plugin SDK** (v2026.3.22+): public surface is `openclaw/plugin-sdk/*` subpaths. The legacy `openclaw/extension-api` monolithic import was removed. Bundled plugins must use injected runtime for host-side operations and narrow SDK subpaths.
+- **Bundled provider plugins** (v2026.3.22+): OpenRouter, GitHub Copilot, OpenAI Codex, Chutes, MiniMax, and DeepSeek are now implemented as bundled plugins with plugin-owned auth, model fallback, and runtime wrappers.
+- **CLI backend plugins** (v2026.3.28-beta.1+): Claude CLI, Codex CLI, and Gemini CLI inference defaults are on the plugin surface with auto-load from explicit config refs.
+- **Plugin hooks**: `before_tool_call` supports async `requireApproval` for user confirmation via exec approval overlay, Telegram buttons, Discord interactions, or `/approve` command. `before_dispatch` provides canonical inbound metadata for route handling.
+
+### ACP (Agent Communication Protocol)
+- `src/acp/`. Protocol for spawning and managing sub-agent sessions. Supports current-conversation binds for Discord, BlueBubbles, iMessage, and Feishu so `/acp spawn codex --bind here` runs an ACP workspace directly in the active chat without creating a child thread. ACPX agent registry mirrors built-in agent aliases with versioned `npx` built-ins.
+
+### Sandbox backends
+- `src/sandbox/`. Pluggable sandbox backend system (v2026.3.22+). Ships three backends:
+  - **Docker** — original container-based backend
+  - **OpenShell** — newer backend with `mirror` (sync workspace into sandbox) and `remote` (use existing remote shell) modes
+  - **SSH** — core SSH backend with secret-backed key, certificate, and known_hosts inputs
+- `openclaw sandbox list/recreate/prune` are backend-aware (not Docker-only).
+
+### Security
+- `src/security/`. Security audit (`openclaw security audit`), scan path helpers, fix application.
+
+### Browser
+- `extensions/browser/src/browser/`. Chromium automation via Playwright CDP. Screenshot normalization, AX tree traversal. Simplified to autoConnect-only (headless/remote MCP attach modes and chrome-relay auto-creation were dropped). (Moved from `src/browser/` in Mar 27 sync 3.)
+
+### TTS
+- `src/tts/`. Text-to-speech via ElevenLabs/OpenAI/Edge TTS APIs.
+
+### Cron
+- `src/cron/`. Scheduled job execution with timer loop and run logging.
+
+### Media
+- `src/media/`. Media fetch (now bounded via `readResponseWithLimit()`), image optimization, input file processing, MIME detection.
+
+### Hooks
+- `src/hooks/`. Bundled hooks (command logger, session memory) + user-configurable hooks.
+
+### TUI
+- `src/tui/`. Terminal UI components for CLI interactions.
+
+### Link understanding
+- `src/link-understanding/`. URL content extraction and summarization.
+
+### Canvas host
+- `src/canvas-host/`. Interactive canvas rendering for rich outputs.
+
+---
+
+## Message lifecycle (detailed)
+
+Below is a conceptual pipeline. Exact details vary by channel.
+
+1) **Ingress**
+- A channel adapter receives an event (DM/group message, attachment, mention).
+
+1.5) **Input sanitization**
+- Strip platform envelope metadata from user messages (`src/gateway/chat-sanitize.ts`)
+- Reject null bytes and strip unsafe control characters (`src/gateway/server-methods/chat.ts:268`)
+
+2) **Identity + authorization**
+- Resolve sender identity.
+- Apply DM policy (pairing/allowlist/open/disabled).
+- Apply group policy (mention gating, allowlists, command gating).
+
+3) **Routing decision**
+- Determine the target agent/session key.
+- In many configs, DMs collapse into a “main” session; groups are isolated.
+
+4) **Context assembly**
+- Load transcript/session store entries from disk.
+- Build the agent prompt context (templates + system prompt + history + attachments).
+
+5) **Model call (agent turn)**
+- Call the selected provider/model (with fallback logic if configured).
+- Stream output events.
+- If the model requests tools, invoke them via the Gateway’s tool execution policy.
+
+6) **Response delivery**
+- **Block reply pipeline** (`src/auto-reply/reply/reply-delivery.ts`): normalizes streaming text, processes reply directives (`[[MEDIA:url]]`, `SILENT_REPLY_TOKEN`), manages typing signals.
+- Convert agent output into channel-specific messages.
+- Apply reply threading rules, chunking, etc.
+- Send back to the channel.
+
+7) **Persistence**
+- Append transcript and metadata updates to disk.
+
+---
+
+## Ports (what listens where)
+
+Default base port: `18789`.
+
+On that port:
+- WebSocket control plane
+- Dashboard (HTTP)
+
+Related derived ports may exist (browser control, canvas host), depending on configuration.
+
+Docs:
+- https://docs.openclaw.ai/gateway (service runbook)
+- https://docs.openclaw.ai/help/faq (port precedence)
+
+---
+
+## Where state lives (operator view)
+
+The most important directory is your state dir:
+- default: `~/.openclaw/`
+- per-profile: `~/.openclaw-<profile>/`
+
+Common paths (see official "credential storage map"):
+- config: `~/.openclaw/openclaw.json`
+- model auth profiles: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
+- transcripts: `~/.openclaw/agents/<agentId>/sessions/*.jsonl`
+
+Docs: https://docs.openclaw.ai/gateway/security
+
+---
+
+## Why “security” is mostly configuration
+
+Most security failures are not exotic. They are:
+- open DMs/groups
+- enabled high-power tools
+- exposed Gateway surface without auth
+- untrusted plugin installation
+
+That's why `openclaw security audit` exists and why config validation is strict.
+
+Docs: https://docs.openclaw.ai/gateway/security

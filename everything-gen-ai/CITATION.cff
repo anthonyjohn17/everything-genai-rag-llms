@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+title: Everything GenAI — curated generative AI list (component)
+message: "If you use this resource, please cite it as below."
+type: dataset
+authors:
+  - family-names: Anthony
+    given-names: John
+repository-code: https://github.com/anthonyjohn17/everything-genai-rag-openclaw
+url: https://github.com/anthonyjohn17/everything-genai-rag-openclaw
+abstract: >-
+  A curated list of modern Generative AI projects and services, maintained as part of a
+  broader AI reference monorepo. This component follows the awesome-list tradition.
+license: CC0-1.0
+date-released: 2026-05-07

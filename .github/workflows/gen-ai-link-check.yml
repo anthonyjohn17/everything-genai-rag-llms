@@ -1,0 +1,29 @@
+# Runs awesome_bot against the curated generative AI lists when those files change.
+name: Gen-AI list link check
+
+on:
+  pull_request:
+    paths:
+      - "everything-gen-ai/README.md"
+      - "everything-gen-ai/DISCOVERIES.md"
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: everything-gen-ai
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+      - run: gem install awesome_bot
+      - run: |
+          awesome_bot README.md DISCOVERIES.md \
+            --allow-redirect \
+            --request-delay 1 \
+            --skip-save-results
