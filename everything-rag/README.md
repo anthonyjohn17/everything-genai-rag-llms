@@ -1,7 +1,7 @@
 # 😎 Awesome RAG (`everything-rag/`) 
 [![Awesome](https://awesome.re/badge-flat.svg)](https://awesome.re) [![Curator](https://img.shields.io/badge/Curator-anthonyjohn17-181717?logo=github)](https://github.com/anthonyjohn17)
 
-> **Folder:** [`everything-rag/`](https://github.com/anthonyjohn17/everything-genai-rag-openclaw/tree/main/everything-rag) · Monorepo: [`everything-genai-rag-openclaw`](https://github.com/anthonyjohn17/everything-genai-rag-openclaw)
+> **Folder:** [`everything-rag/`](https://github.com/anthonyjohn17/everything-genai-rag-llms/tree/main/everything-rag) · Monorepo: [`everything-genai-rag-llms`](https://github.com/anthonyjohn17/everything-genai-rag-llms)
 
 Curated resource map for Retrieval-Augmented Generation (RAG), maintained by **[John Anthony](https://github.com/anthonyjohn17)**. Linked tutorial repos stay credited to their authors.
 

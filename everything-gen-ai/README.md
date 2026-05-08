@@ -1,11 +1,11 @@
 # Awesome Generative AI (`everything-gen-ai/`) [![Awesome](https://awesome.re/badge-flat.svg)](https://awesome.re)
 
-> **Folder:** [`everything-gen-ai/`](https://github.com/anthonyjohn17/everything-genai-rag-openclaw/tree/main/everything-gen-ai) · Monorepo: [`everything-genai-rag-openclaw`](https://github.com/anthonyjohn17/everything-genai-rag-openclaw)  
+> **Folder:** [`everything-gen-ai/`](https://github.com/anthonyjohn17/everything-genai-rag-llms/tree/main/everything-gen-ai) · Monorepo: [`everything-genai-rag-llms`](https://github.com/anthonyjohn17/everything-genai-rag-llms)  
 > Curated list of modern Generative AI projects and services by [John Anthony](https://github.com/anthonyjohn17). Contributions use the parent repo's Issues/PRs.
 
 Generative Artificial Intelligence is a technology that creates original content such as images, sounds, and texts by using machine learning algorithms that are trained on large amounts of data. Unlike other forms of AI, it is capable of creating unique and previously unseen outputs such as photorealistic images, digital art, music, and writing. These outputs often have their own unique style and can even be hard to distinguish from human-created works. Generative AI has a wide range of applications in fields such as of art, entertainment, marketing, academia, and computer science.
 
-Contributions to this list are welcome. Before submitting your suggestions, please review the [Contribution Guidelines](CONTRIBUTING.md) to ensure your entries meet the criteria. Add links through [pull requests](https://github.com/anthonyjohn17/everything-genai-rag-openclaw/pulls) or create an [issue](https://github.com/anthonyjohn17/everything-genai-rag-openclaw/issues) to start a discussion. More projects can be found in the [Discoveries List](DISCOVERIES.md), where we showcase a wide range of up-and-coming Generative AI projects.
+Contributions to this list are welcome. Before submitting your suggestions, please review the [Contribution Guidelines](CONTRIBUTING.md) to ensure your entries meet the criteria. Add links through [pull requests](https://github.com/anthonyjohn17/everything-genai-rag-llms/pulls) or create an [issue](https://github.com/anthonyjohn17/everything-genai-rag-llms/issues) to start a discussion. More projects can be found in the [Discoveries List](DISCOVERIES.md), where we showcase a wide range of up-and-coming Generative AI projects.
 
 ## Contents
 

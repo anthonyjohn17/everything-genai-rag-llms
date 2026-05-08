@@ -1,6 +1,6 @@
 # Everything OpenAI Whisper (`everything-openai-whisper/`)
 
-> **Folder:** [`everything-openai-whisper/`](https://github.com/anthonyjohn17/everything-genai-rag-openclaw/tree/main/everything-openai-whisper) · Monorepo: [`everything-genai-rag-openclaw`](https://github.com/anthonyjohn17/everything-genai-rag-openclaw)
+> **Folder:** [`everything-openai-whisper/`](https://github.com/anthonyjohn17/everything-genai-rag-llms/tree/main/everything-openai-whisper) · Monorepo: [`everything-genai-rag-llms`](https://github.com/anthonyjohn17/everything-genai-rag-llms)
 
 Curated Whisper resources by **[John Anthony](https://github.com/anthonyjohn17)**.
 

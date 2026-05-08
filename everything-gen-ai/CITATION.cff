@@ -5,8 +5,8 @@ type: dataset
 authors:
   - family-names: Anthony
     given-names: John
-repository-code: https://github.com/anthonyjohn17/everything-genai-rag-openclaw
-url: https://github.com/anthonyjohn17/everything-genai-rag-openclaw
+repository-code: https://github.com/anthonyjohn17/everything-genai-rag-llms
+url: https://github.com/anthonyjohn17/everything-genai-rag-llms
 abstract: >-
   A curated list of modern Generative AI projects and services, maintained as part of a
   broader AI reference monorepo. This component follows the awesome-list tradition.

@@ -1,10 +1,10 @@
 # Ideation: Version 2.0
 
-**Repository:** `everything-genai-rag-openclaw`  
+**Repository:** `everything-genai-rag-llms`  
 **Document type:** Strategic enhancement backlog (non-binding roadmap)  
 **Audience:** Maintainer, contributors, and stakeholders evaluating portfolio depth vs. operational sustainability  
 
-This document assumes familiarity with the root [`README.md`](../README.md): a **personal reference and portfolio monorepo** bundling four thematic pillars—**Generative AI** (`everything-gen-ai/`), **RAG** (`everything-rag/`), **OpenAI Whisper** (`everything-openai-whisper/`), and **OpenClaw** (`everything-openclaw/`)—plus CI that today focuses primarily on the GenAI awesome list.
+This document assumes familiarity with the root [`README.md`](../README.md): a **personal reference and portfolio monorepo** bundling four thematic pillars—**Generative AI** (`everything-gen-ai/`), **RAG** (`everything-rag/`), **OpenAI Whisper** (`everything-openai-whisper/`), and **LLM APIs** (`everything-llm-apis/`)—plus CI that today focuses primarily on the GenAI awesome list.
 
 Version 2.0 here means **a coherent elevation** of the whole repo: stronger navigation, stronger verification, stronger cross-links between pillars, and clearer boundaries between “curated catalog,” “living knowledge base,” and upstream ownership—without turning the collection into an unmaintainable software product unless that is an explicit goal.
 
@@ -17,10 +17,10 @@ The current shape is intentional and strong:
 | Strength | Why it matters |
 |----------|----------------|
 | **Single clone, offline-friendly browsing** | Researchers and hiring managers get one URL/repo instead of scattered bookmarks. |
-| **Clear pillar separation** | GenAI vs. RAG vs. speech vs. agents avoids the common failure mode of one mega-list with mixed quality bars. |
+| **Clear pillar separation** | GenAI vs. RAG vs. speech vs. LLM APIs avoids the common failure mode of one mega-list with mixed quality bars. |
 | **Awesome-list discipline for GenAI** | `awesome-lint` + `awesome_bot` on `README.md` / `DISCOVERIES.md` signals seriousness and catches structural/link drift. |
-| **Tiered inclusion (Main vs. Discoveries)** | [`everything-gen-ai/CONTRIBUTING.md`](../everything-gen-ai/CONTRIBUTING.md) documents explicit gates—this scales community contributions better than vibe-based merges. |
-| **OpenClaw depth (`explain-openclaw`)** | Security, deployment, threat intelligence, and beginner tracks form a **living knowledge base**—a different asset class than link lists and rightly treated as such. |
+| **Tiered inclusion (Main vs. Discoveries)** | Explicit contribution gates documented in CONTRIBUTING.md—this scales community contributions better than vibe-based merges. |
+| **LLM API coverage** | `everything-llm-apis` tracks free and open inference endpoints—a different asset class than link lists, with its own update cadence. |
 | **Operational realism** | Root README states this is **not a single installable app**, which sets honest expectations—Version 2.0 should preserve that clarity while optionally adding *adjacent* tooling. |
 
 Version 2.0 enhancements should **amplify** these strengths rather than replace them with novelty.
@@ -33,7 +33,7 @@ Version 2.0 enhancements should **amplify** these strengths rather than replace 
 2. **Match asset class to tooling.** Link catalogs benefit from linting and periodic checks; long-form guides benefit from editorial workflow, diagrams, and changelog discipline.
 3. **Cross-pillar linking without flattening.** RAG ↔ agents ↔ speech are deeply connected in practice; the repo should surface those connections explicitly.
 4. **Sustainable maintenance.** Every new recurring job (weekly reports, broad link crawling) needs an owner, a kill switch, and a defined signal-to-noise ratio.
-5. **Trust and safety stay first-class for OpenClaw.** The `explain-openclaw` security corpus is a differentiator; it should remain easy to find, diff, and cite.
+5. **Accuracy stays first-class for LLM APIs.** The `everything-llm-apis` index tracks rapidly-changing providers; it should remain easy to verify, update, and cite.
 
 ---
 
@@ -44,7 +44,7 @@ Version 2.0 enhancements should **amplify** these strengths rather than replace 
 **Enhancement:** Add a single **Monorepo atlas** (for example `docs/MONOREPO-MAP.md` or a dedicated section in the root README) that includes:
 
 - A **visual hierarchy** (pillars → primary README → secondary docs).
-- **Reading paths** (“I’m building production RAG,” “I’m hardening OpenClaw,” “I’m evaluating speech pipelines”).
+- **Reading paths** (“I’m building production RAG,” “I’m finding free LLM APIs,” “I’m evaluating speech pipelines”).
 - **Asset classes** per pillar (catalog vs. tutorial index vs. narrative guide vs. templates).
 - **Maintenance contracts** (what is updated monthly vs. opportunistically vs. archived).
 
@@ -52,11 +52,11 @@ Version 2.0 enhancements should **amplify** these strengths rather than replace 
 
 ### 3.2 Standardized front matter for long-form docs (optional but scalable)
 
-**Enhancement:** For `explain-openclaw` and other narrative docs, adopt minimal YAML front matter or a consistent header block:
+**Enhancement:** For narrative docs and deeper guides, adopt minimal YAML front matter or a consistent header block:
 
 - `title`, `last_reviewed`, `review_cycle`, `upstream_refs`, `owner`, `status` (current / legacy / superseded).
 
-**Why:** At hundreds of files, “living knowledge base” needs lightweight librarianship—not necessarily a full static site, but enough metadata to drive reports (“docs stale > 180 days”) and contributor onboarding.
+**Why:** At scale, a living knowledge base needs lightweight librarianship—not necessarily a full static site, but enough metadata to drive reports (“docs stale > 180 days”) and contributor onboarding.
 
 ### 3.3 Uniform “folder banner” pattern across pillars
 
@@ -79,7 +79,7 @@ Each pillar README already carries folder + monorepo pointers. Version 2.0 can s
 
 | Tier | Scope | Value | Cost |
 |------|-------|-------|------|
-| **A. Minimal** | Add scheduled `awesome_bot` (or generic link checker) for `everything-rag/README.md`, `everything-openai-whisper/README.md`, and selected `explain-openclaw` indexes | Catches rot where contributors expect reliability | Noise from paywalls, bot blocks, and redirects |
+| **A. Minimal** | Add scheduled `awesome_bot` (or generic link checker) for `everything-rag/README.md`, `everything-openai-whisper/README.md`, and `everything-llm-apis/README.md` | Catches rot where contributors expect reliability | Noise from paywalls, bot blocks, and redirects |
 | **B. Structured** | Maintain `allowlist` / `denylist` patterns, per-domain rate limits, and separate jobs per pillar | Reduces false failures | Requires tuning |
 | **C. Heavy** | Archive snapshots (Internet Archive links), HEAD-only checks, or cached status DB | Strong provenance | Material complexity |
 
@@ -95,10 +95,9 @@ Keep GenAI aligned with Awesome guidelines (already central). For RAG:
 
 **Enhancement:** Root `.github/ISSUE_TEMPLATE/` with routed templates:
 
-- “GenAI list addition” → links to `everything-gen-ai/CONTRIBUTING.md`
+- “GenAI list addition” → links to CONTRIBUTING.md
 - “RAG resource” → asks for category, maintenance evidence, duplicate check
-- “OpenClaw doc correction” → asks for upstream citation vs. novel analysis
-- “Security-sensitive” → directs to responsible disclosure paths per `explain-openclaw`
+- “LLM API addition” → asks for endpoint status, rate limits, and open/free tier evidence
 
 **Why:** Reduces maintainer triage and prevents security mistakes in public threads.
 
@@ -140,7 +139,7 @@ The RAG README already combines **patterns**, **frameworks**, **chunking depth**
 
 - **Decision trees:** ASCII or Mermaid diagrams for “naive vs. advanced vs. agentic vs. graph” and when to pay for re-ranking.
 - **Failure modes appendix:** Hallucinated citations, stale corpora, permission leaks in enterprise indexes, embedding model drift—each tied to existing technique links.
-- **Cross-links to GenAI and OpenClaw:** Agents often *are* retrieval planners; link outward to OpenClaw explainers on tool permission boundaries.
+- **Cross-links to GenAI and LLM APIs:** Agents often *are* retrieval planners; link outward to relevant provider and model entries in sibling pillars.
 - **Expand nested docs:** The README references deeper material like [`docs/python-ecosystem.md`](../everything-rag/docs/python-ecosystem.md)—ensure discoverability via a `everything-rag/docs/README.md` index if not already prominent.
 
 **Operational evaluation lane**
@@ -158,44 +157,16 @@ The RAG README already combines **patterns**, **frameworks**, **chunking depth**
 
 - Whisper moves fast; prioritize links that track **canonical repos** and **official posts** over ephemeral demos.
 
-### 5.4 `everything-openclaw/` (multi-subtree ecosystem)
+### 5.4 `everything-llm-apis/` (provider index)
 
-This pillar mixes **templates**, **skills indexes**, **use cases**, **mission control references**, and **`explain-openclaw`** narrative docs—Version 2.0 wins by clarifying roles:
+This pillar curates **free and open LLM API providers**, inference endpoints, and rate-limit details—an index that changes fast and benefits from a structured update cadence:
 
-| Sub-area | Version 2.0 direction |
-|----------|----------------------|
-| **`explain-openclaw`** | Continue as authoritative *secondary* docs with aggressive upstream citations; maintain a **changelog** or **news index** when threat landscapes shift quickly |
-| **`openclaw-agents`** | Standardize template metadata (purpose, risk tier, tools required, secrets handling), align README depth across agents |
-| **`openclaw-skills`** | Treat like a package ecosystem index—signal verification posture and supply-chain notes consistent with security docs |
-| **`openclaw-usecases`** | Prefer repeatable patterns (problem → constraints → setup sketch → pitfalls) |
-| **`openclaw-mission-control`** | Clear vendoring/README contract: version pinned?, drift policy?, issue routing |
-
-**Cross-repo alignment**
-
-- Where upstream OpenClaw changes CLI or security defaults, provide a **short migration note** in explain-openclaw with links to official docs ([OpenClaw docs](https://docs.openclaw.ai/)) rather than duplicating upstream reference material verbatim.
-
----
-
-## 6. Knowledge base maturity (`explain-openclaw`)
-
-### 6.1 Editorial tiers
-
-Introduce explicit tiers for long-form pages:
-
-- **Canonical narrative** (maintained; referenced from README TOC)
-- **Incident note** (time-stamped; may age out into archive)
-- **Deep dive** (stable URL; updated when new evidence appears)
-
-### 6.2 Threat intelligence discipline
-
-The README already tracks CVEs/GHSAs and ecosystem threats. Version 2.0 enhancements:
-
-- **Single index table** of incidents with fields: date, scope, mitigation status, upstream fix version (where applicable), local doc link.
-- **Hypothesis vs. verified** labeling rigor to preserve trust.
-
-### 6.3 Diagrams and operational runbooks
-
-Replace long prose with **deployment diagrams** where possible (network boundaries, trust zones). Provide **copy/paste checklists** aligned with hardening guides—operators love checklists.
+| Concern | Version 2.0 direction |
+|---------|----------------------|
+| **Provider freshness** | Flag entries with last-verified date; automate a periodic check of endpoint availability |
+| **Entry metadata** | Standardize fields: provider, free tier limits, model(s) offered, auth method, open-source status |
+| **Deprecation handling** | Move sunset providers to an `archived/` section rather than silently removing them |
+| **Cross-links to GenAI** | Link relevant provider entries to model entries in `everything-gen-ai/` where overlap exists |
 
 ---
 
@@ -219,7 +190,7 @@ If pursued, keep artifacts **generated from markdown** in-repo to avoid divergen
 
 - Ensure each pillar’s `LICENSE` remains obvious from the root README (already summarized—keep synchronized).
 - For commercial links, avoid language that implies endorsement; maintain neutral descriptions.
-- For OpenClaw security writing, keep **clear separation** betweenanalysis vs. official vendor statements.
+- For LLM API entries, keep **clear separation** between independent analysis and vendor marketing claims.
 
 ---
 
@@ -251,8 +222,8 @@ Avoid vanity metrics; track sustainability instead:
 ### Phase 2 — Depth (weeks to months)
 
 - RAG decision diagrams + failure modes appendix
-- OpenClaw template metadata normalization
-- Security incident index consolidation
+- LLM API entry metadata normalization (last-verified dates, structured fields)
+- Duplicate URL detection across pillars
 
 ### Phase 3 — Optional packaging (months)
 
@@ -266,13 +237,13 @@ To protect focus:
 
 - Turning the monorepo into a **framework** or mandatory installable product
 - Automatically accepting PRs purely based on popularity thresholds **without** curator review
-- Duplicating large upstream manuals inside `explain-openclaw` instead of linking + annotating deltas
+- Duplicating upstream provider docs inside the repo instead of linking + annotating deltas
 
 ---
 
 ## 12. Closing stance
 
-Version 2.0 should feel like **a sharper edition of the same book**: better maps at the front, better indexes at the back, stronger link janitors in the middle, and **richer connective tissue** between GenAI, RAG, speech, and OpenClaw—especially where real systems compose those pieces. The highest-class enhancement is not sheer volume; it is **trust**, **navigability**, and **maintainability** at scale.
+Version 2.0 should feel like **a sharper edition of the same book**: better maps at the front, better indexes at the back, stronger link janitors in the middle, and **richer connective tissue** between GenAI, RAG, speech, and LLM APIs—especially where real systems compose those pieces. The highest-class enhancement is not sheer volume; it is **trust**, **navigability**, and **maintainability** at scale.
 
 ---
 
